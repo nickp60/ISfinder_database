@@ -16,37 +16,33 @@ rq = requests.Session()
 lists, outdir = sys.argv[1:]
 lists_h = open(lists, 'r')
 ids = {}
+os.makedirs(outdir, exist_ok=True)
 uncomplete = open(outdir+'/unfinish.task.list', 'w')
 for line in lists_h:
     line = line.strip()
     arr = line.split('name=')
     ids[arr[1]] = line
     print('start:'+line)
-    r = rq.get(line)
-    if r.status_code == 200:
-        IS_text = r.text
-        print('get:'+line)
-        out = outdir+'/'+ arr[1]+'.html'
-        open(out, 'w').write(IS_text)
-        IS_html = BeautifulSoup(IS_text, "html.parser")
-        IS_seq = IS_html.find('div', class_="seq").text
-        out = outdir+'/'+ arr[1]+'.seq.fa'
-        open(out, 'w').write(">"+arr[1]+'\n'+IS_seq+'\n')
-        print(out)
-        time.sleep(2)
-    else:
+    try:
+        r = rq.get(line)
+        if r.status_code == 200:
+            IS_text = r.text
+            print('get:'+line)
+            out = outdir+'/'+ arr[1]+'.html'
+            open(out, 'w').write(IS_text)
+            IS_html = BeautifulSoup(IS_text, "html.parser")
+            IS_seq = IS_html.find('div', class_="seq").text
+            out = outdir+'/'+ arr[1]+'.seq.fa'
+            open(out, 'w').write(">"+arr[1]+'\n'+IS_seq+'\n')
+            print(out)
+            time.sleep(2)
+        else:
+            print('error:'+str(r.status_code)+':'+line)
+            uncomplete.write(line)
+    except ConnectionError:
         print('error:'+str(r.status_code)+':'+line)
         uncomplete.write(line)
 
 
 uncomplete.close()
 print("warn:please check the file "+outdir+'/unfinish.task.list!!!!')
-
-        
-
-    
-
-
-
-
-
