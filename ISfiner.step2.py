@@ -39,7 +39,7 @@ for line in lists_h:
         else:
             print('error:'+str(r.status_code)+':'+line)
             uncomplete.write(line)
-    except ConnectionError:
+    except requests.exceptions.ConnectionError::
         print('error:'+str(r.status_code)+':'+line)
         uncomplete.write(line)
 
